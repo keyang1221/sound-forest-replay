@@ -73,7 +73,7 @@
     <section class="viz-method" aria-labelledby="viz-method-title">
       <h2 id="viz-method-title">Visualization method</h2>
       <div id="weekly-method">
-      <p>The weekly heatmap shows string activity from 08:00 to 20:00. The five rows represent Strings 1–5, from top to bottom. Each square sums triggers over <span id="analysis-grain">2–20</span> minutes; the final interval includes only its remaining duration. Intervals adapt to the screen width between 2 and 20 minutes. The chart is centered when two-minute intervals fit, and scrolls horizontally when twenty-minute intervals do not. Hover over a square to see its date, string, time range and trigger count.</p>
+      <p>The weekly heatmap shows Tuesday-to-Sunday string activity from 08:00 to 20:00. Mondays are excluded from all views and imports. The five rows represent Strings 1–5, from top to bottom. Each square sums triggers over <span id="analysis-grain">2–20</span> minutes; the final interval includes only its remaining duration. Intervals adapt to the screen width between 2 and 20 minutes. The chart is centered when two-minute intervals fit, and scrolls horizontally when twenty-minute intervals do not. Hover over a square to see its date, string, time range and trigger count.</p>
       <p>Square color and area share a quartile mapping. Nonzero intervals from all valid dates between 08:00 and 20:00 are pooled, with one trigger, Q1, the median, Q3 and the maximum as anchors. Squares grow smoothly as colors shift from green through yellow to red. The same scale is used across weeks at the same interval length, and recalculated when that interval changes. Tiny faint squares indicate zero triggers; missing logs are marked separately.</p>
       </div>
       <div id="daily-method" hidden>

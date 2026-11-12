@@ -18,6 +18,7 @@ def build(args):
                 code = match[1]
                 date = datetime.date(2000+int(code[:2]), int(code[2:4]), int(code[4:6])).isoformat()
                 if not date.startswith('20'): raise ValueError('Expected a 20YY file date')
+                if datetime.date.fromisoformat(date).weekday() == 0: continue
                 events = []
                 with path.open(newline='', encoding='utf-8-sig') as source:
                     rows = csv.reader(source)
@@ -45,6 +46,7 @@ def build(args):
         for entry in manifest['days']:
             date = datetime.date.fromisoformat(entry['date']).isoformat()
             if entry['url'] != f'./day-{date}.json': raise ValueError('Invalid snapshot path')
+            if datetime.date.fromisoformat(date).weekday() == 0: continue
             payload = json.loads((snapshot / f'day-{date}.json').read_text())
             if payload.get('version') != 1 or payload.get('date') != date: raise ValueError('Invalid snapshot day')
             for event in payload['events']:

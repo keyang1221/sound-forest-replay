@@ -1,3 +1,4 @@
+import {isIncludedDate} from './data-policy.mjs';
 import {DOT_RADIUS} from './heatmap-layout.mjs';
 // Method matches the referenced October analysis: complete clock-aligned cells,
 // nearest-rank quartiles over positive cells, and a separate zero anchor.
@@ -38,8 +39,8 @@ export function weekOptionLabel(date){
  return `${monday.replaceAll('-','/')} W${String(week).padStart(2,'0')}`;
 }
 export function buildDataset(rawDays,start=36000,end=61200,binSeconds=120){
- const days=rawDays.map(d=>aggregateDay(d,start,end,binSeconds));
- const scaleDays=days.filter(d=>d.date!=='2026-10-19');
+ const days=rawDays.filter(d=>isIncludedDate(d.date)).map(d=>aggregateDay(d,start,end,binSeconds));
+ const scaleDays=days;
  return {days,scaleDates:scaleDays.map(d=>d.date).sort(),quartiles:nonzeroQuartiles(scaleDays.flatMap(d=>d.series.flatMap(r=>r.cells.map(c=>c.count))))};
 }
 export function colorForCount(value,q){

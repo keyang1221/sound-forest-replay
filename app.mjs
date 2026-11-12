@@ -1,3 +1,4 @@
+import {isIncludedDate} from './data-policy.mjs';
 import {parseLog,prepareDay,Replay,lightAt,activityColor,formatClock,timelineCells,peakStart} from './model.mjs';
 import {layoutScene,scrollScene} from './scene.mjs';
 import {createVisualization} from './visualization.mjs';
@@ -231,7 +232,7 @@ async function boot(){
    if(!response.ok)throw new Error('Published interaction data is not available');
    manifest=publicSources(await response.json());
   }
-  for(const entry of manifest)sources.set(entry.date,entry);
+  for(const entry of manifest)if(isIncludedDate(entry.date))sources.set(entry.date,entry);
   if(sources.size){updateDateSelect([...sources.keys()].sort().at(-1));await selectDay($('day-select').value);}
  }catch(error){notify(error.message||'Interaction data is not available. Please try refreshing the page.');}
 }

@@ -1,10 +1,11 @@
+import {isIncludedDate} from './data-policy.mjs';
 const validDate=date=>typeof date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(date)&&new Date(`${date}T00:00:00Z`).toISOString().slice(0,10)===date;
 export function publicSources(manifest){
  if(manifest?.version!==1||!Array.isArray(manifest.days))throw new Error('Unsupported published data manifest');
  return manifest.days.map(entry=>{
   if(!validDate(entry.date)||entry.url!==`./day-${entry.date}.json`)throw new Error('Invalid published data source');
   return {date:entry.date,url:entry.url,kind:'public',name:'Published interaction data'};
- });
+ }).filter(entry=>isIncludedDate(entry.date));
 }
 export function decodePublicDay(payload){
  if(payload?.version!==1||!validDate(payload.date)||!Array.isArray(payload.events))throw new Error('Invalid published interaction data');

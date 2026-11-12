@@ -1,6 +1,6 @@
 import {buildPickerData,pickerMonthCells,shiftPickerMonth,movePickerDate} from './date-picker-model.mjs';
 const nf=new Intl.NumberFormat('en-US'),monthFormat=new Intl.DateTimeFormat('en',{month:'long',year:'numeric',timeZone:'UTC'});
-const weekdays=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const weekdays=['Tue','Wed','Thu','Fri','Sat','Sun'];
 export function createHeatDatePicker({trigger,root,onSelect}){
  const $=id=>root.querySelector(`#${id}`),label=trigger.querySelector('span'),monthsNode=$('date-picker-months'),previous=$('date-picker-prev'),next=$('date-picker-next');
  let data=null,value='',cursor='',focusedDate='';
@@ -20,7 +20,7 @@ export function createHeatDatePicker({trigger,root,onSelect}){
   if(!visibleDates.includes(focusedDate))focusedDate=visibleDates.includes(value)?value:visibleDates[0]||'';
   const cells=pickerMonthCells(data,cursor),rows=[];
   $('date-picker-month-title').textContent=monthFormat.format(new Date(`${cursor}-01T00:00:00Z`));
-   for(let row=0;row<6;row++)rows.push(`<tr>${cells.slice(row*7,row*7+7).map(cell=>{
+   for(let row=0;row<6;row++)rows.push(`<tr>${cells.slice(row*6,row*6+6).map(cell=>{
     if(!cell)return '<td></td>';
     const available=cell.status==='recorded',selected=cell.date===value,description=`${cell.date}, ${describe(cell)}`,background=available?(cell.count?cell.color:'#e9e6df'):'';
     return `<td><button type="button" data-picker-date="${cell.date}" data-total="${cell.count??''}" data-status="${cell.status}" class="date-picker-day${selected?' is-selected':''}" aria-label="${description}" aria-pressed="${selected}" title="${description}" tabindex="${cell.date===focusedDate?0:-1}" ${available?`style="--day-heat:${background}"`:'disabled'}>${Number(cell.date.slice(-2))}</button></td>`;

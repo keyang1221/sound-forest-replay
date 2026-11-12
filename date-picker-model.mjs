@@ -1,12 +1,13 @@
+import {isIncludedDate} from './data-policy.mjs';
 import {nonzeroQuartiles,colorForCount} from './activity.mjs';
 const monthIndex=value=>{const [year,month]=value.split('-').map(Number);return year*12+month-1;};
 const monthName=index=>`${Math.floor(index/12)}-${String(index%12+1).padStart(2,'0')}`;
 export const shiftPickerMonth=(month,step)=>monthName(monthIndex(month)+step);
 
 export function buildPickerData(rawDays,dates=rawDays.map(d=>d.date),failures=[]){
- const counts=new Map(rawDays.map(day=>[day.date,day.events.filter(e=>e.t>=0&&e.t<86400).length]));
+ const counts=new Map(rawDays.filter(day=>isIncludedDate(day.date)).map(day=>[day.date,day.events.filter(e=>e.t>=0&&e.t<86400).length]));
  const quartiles=nonzeroQuartiles([...counts.values()]),failed=new Set(failures.map(f=>f.date));
- const all=[...new Set([...dates,...counts.keys(),...failed])].sort();
+ const all=[...new Set([...dates,...counts.keys(),...failed])].filter(isIncludedDate).sort();
  const entries=new Map(all.map(date=>{const recorded=counts.has(date),count=recorded?counts.get(date):null;return [date,{date,count,status:recorded?'recorded':failed.has(date)?'failed':'missing',color:recorded?colorForCount(count,quartiles):null}];}));
  return {entries,quartiles,available:[...counts.keys()].sort(),minMonth:all[0]?.slice(0,7),maxMonth:all.at(-1)?.slice(0,7)};
 }
@@ -16,7 +17,7 @@ export function pickerMonthCells(data,month){
   const n=index-offset+1;if(n<1||n>last)return null;
   const date=`${month}-${String(n).padStart(2,'0')}`;
   return data.entries.get(date)||{date,count:null,status:'missing',color:null};
- });
+ }).filter((_,index)=>index%7!==0);
 }
 export function movePickerDate(available,current,key){
  if(!available.length)return null;

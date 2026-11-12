@@ -5,9 +5,9 @@ import {buildMonthlyDataset} from './monthly.mjs';
 import {createMonthlyChart} from './monthly-chart.mjs';
 import {createHeatDatePicker} from './date-picker.mjs';
 const $=id=>document.getElementById(id),nf=new Intl.NumberFormat('en-US');
-const clock=t=>formatClock(t).slice(0,5),weekdays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const clock=t=>formatClock(t).slice(0,5),weekdays=['Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const analysisStart=8*3600,analysisEnd=20*3600;
-const weekLabel=start=>{const days=calendarWeek(start);return `${days[0].replaceAll('-',' / ')} — ${days[6].slice(5).replace('-',' / ')}`;};
+const weekLabel=start=>{const days=calendarWeek(start).slice(1);return `${days[0].replaceAll('-',' / ')} — ${days.at(-1).slice(5).replace('-',' / ')}`;};
 export function createVisualization({loadData,getPreferredDate}){
  let rawDays=[],dates=[],dataset=null,monthlyData=null,date='',week='',period='week',request=null,ready=false;
  let selected={lane:0,bin:0},geometry=null,lastWidth=0,tooltipMode=null,inspectedDate=null,selectionAnchor=null,resizePending=false;
@@ -83,7 +83,7 @@ export function createVisualization({loadData,getPreferredDate}){
   const anchor=preserveSelection?selectionAnchor:null;
   hideInspect();if(!preserveSelection){inspectedDate=null;selectionAnchor=null;}
   lastWidth=scroller.clientWidth;
-  const dots=period==='week',weekDates=calendarWeek(week),start=analysisStart,end=analysisEnd;
+  const dots=period==='week',weekDates=calendarWeek(week).slice(1),start=analysisStart,end=analysisEnd;
   const layout=heatmapLayout(lastWidth,start,end),binSeconds=dots?layout.binSeconds:120,binCount=Math.ceil((end-start)/binSeconds);
   recalculate(binSeconds);$('analysis-grain').textContent=layout.binMinutes;
   $('analysis-week-control').hidden=!dots;$('analysis-date-control').hidden=dots;
@@ -99,7 +99,7 @@ export function createVisualization({loadData,getPreferredDate}){
   const left=dots?layout.left:peak.left,right=dots?16:peak.right;
   const plotWidth=dots?layout.plotWidth:peak.plotWidth;
   const width=dots?layout.width:peak.width;
-  const rowStep=14,firstRowY=34+17*layout.labelScale,bandHeight=firstRowY+4*rowStep+27,padding=64,height=dots?bandHeight*7:516;
+  const rowStep=14,firstRowY=34+17*layout.labelScale,bandHeight=firstRowY+4*rowStep+27,padding=64,height=dots?bandHeight*weekDates.length:516;
   const xFor=t=>dots?heatmapTimeX(layout,t):left+(t-start)/(end-start)*plotWidth,parts=[],lanes=[],dotFills=new Map();
   function dotFill(color){
    if(!dotFills.has(color)){
@@ -124,8 +124,8 @@ export function createVisualization({loadData,getPreferredDate}){
     axis(dateY);
     parts.push(`<text class="week-day" x="${layout.offset}" y="${top+17}">${weekdays[index]}</text><text class="week-date" x="${layout.offset}" y="${dateY}">${dayDate.replaceAll('-','.')}</text>`);
     for(let row=0;row<5;row++)parts.push(`<text class="week-row-label" x="${layout.offset}" y="${top+firstRowY+row*rowStep+3}">S${row+1}</text>`);
-    if(status)parts.push(`<text class="week-status" x="${left}" y="${top+firstRowY-12}">${status}</text>`);
-    if(!day){parts.push(`<path class="missing-day" d="M${left} ${top+firstRowY+2*rowStep}H${left+plotWidth}"/>`);continue;}
+    if(status)parts.push(`<text class="week-status" x="${left+16}" y="${top+firstRowY+2*rowStep+3}">${status}</text>`);
+    if(!day){parts.push(`<path class="missing-day" d="M${left+110*layout.labelScale} ${top+firstRowY+2*rowStep}H${left+plotWidth}"/>`);continue;}
     for(const [rowIndex,row] of day.series.entries()){
      const y=top+firstRowY+rowIndex*rowStep;lanes.push({day,row,y});
      for(const [bin,cell] of row.cells.entries()){
@@ -153,7 +153,7 @@ export function createVisualization({loadData,getPreferredDate}){
   svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.style.minWidth=`${width}px`;svg.style.height=`${height}px`;
   for(const [name,size] of [['weekday',12],['date',10],['status',9]])svg.style.setProperty(`--analysis-${name}-size`,`${size*layout.labelScale}px`);
   svg.dataset.binMinutes=binSeconds/60;
-  svg.setAttribute('aria-label',dots?`${weekDates[0]} to ${weekDates[6]}, ${clock(start)}–${clock(end)}, five strings per day, Monday to Sunday. Weekly heatmap with ${layout.binMinutes}-minute trigger totals.`:`${date}, ${clock(start)}–${clock(end)}. Daily curves of two-minute trigger totals for five strings.`);
+  svg.setAttribute('aria-label',dots?`${weekDates[0]} to ${weekDates.at(-1)}, ${clock(start)}–${clock(end)}, five strings per day, Tuesday to Sunday. Weekly heatmap with ${layout.binMinutes}-minute trigger totals.`:`${date}, ${clock(start)}–${clock(end)}. Daily curves of two-minute trigger totals for five strings.`);
   parts.push(dots?'<rect class="selected-cell" id="analysis-selected-cell" style="display:none"/>':'<circle class="selected-cell" id="analysis-selected-cell" r="4" style="display:none"/>');
   svg.innerHTML=(dotFills.size?`<defs>${[...dotFills.values()].join('')}</defs>`:'')+parts.join('');
   const maxScroll=Math.max(0,scroller.scrollWidth-scroller.clientWidth);
