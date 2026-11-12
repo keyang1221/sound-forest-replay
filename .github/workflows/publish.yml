@@ -4,7 +4,8 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 10 * * *'
+      timezone: Europe/Stockholm
 concurrency:
   group: sound-forest-pages
   cancel-in-progress: false
@@ -40,35 +41,24 @@ jobs:
           token: ${{ secrets.SOUND_FOREST_DATA_READ_TOKEN }}
           path: _private-data
           persist-credentials: false
-      - name: Detect a data update
+      - name: Build public interaction data
+        if: steps.connection.outputs.connected == 'true'
+        run: |
+          revision=$(git -C _private-data rev-parse HEAD)
+          python3 export-public.py --data-dir _private-data/data --assets . --output _site --revision "$revision"
+      - name: Build initial public snapshot
+        if: steps.connection.outputs.connected != 'true' && github.event_name != 'schedule'
+        run: python3 export-public.py --snapshot . --assets . --output _site
+      - name: Detect an interaction data update
         id: prepare
         env:
-          CONNECTED: ${{ steps.connection.outputs.connected }}
           EVENT_NAME: ${{ github.event_name }}
-          SITE_MANIFEST: https://keyang1221.github.io/sound-forest-replay/data-manifest.json
-        run: |
-          python3 - <<'PY'
-          import json,os,subprocess,urllib.request
-          connected=os.environ['CONNECTED']=='true'
-          changed=os.environ['EVENT_NAME']!='schedule'
-          revision=''
-          if connected:
-              revision=subprocess.check_output(['git','-C','_private-data','rev-parse','HEAD'],text=True).strip()
-              try:
-                  with urllib.request.urlopen(os.environ['SITE_MANIFEST'],timeout=15) as response:
-                      published=json.load(response).get('sourceRevision')
-              except Exception:
-                  published=None
-              changed=changed or revision!=published
-          with open(os.environ['GITHUB_OUTPUT'],'a') as output:
-              output.write(f'changed={str(changed).lower()}\nrevision={revision}\n')
-          PY
-      - name: Build public interaction data
-        if: steps.prepare.outputs.changed == 'true' && steps.connection.outputs.connected == 'true'
-        run: python3 export-public.py --data-dir _private-data/data --assets . --output _site --revision '${{ steps.prepare.outputs.revision }}'
-      - name: Build initial public snapshot
-        if: steps.prepare.outputs.changed == 'true' && steps.connection.outputs.connected != 'true'
-        run: python3 export-public.py --snapshot . --assets . --output _site
+        run: >-
+          python3 check-public-update.py
+          --candidate _site/data-manifest.json
+          --published-url https://keyang1221.github.io/sound-forest-replay/data-manifest.json
+          --event "$EVENT_NAME"
+          --github-output "$GITHUB_OUTPUT"
       - name: Preserve the processed snapshot
         if: steps.prepare.outputs.changed == 'true' && steps.connection.outputs.connected == 'true'
         run: |
