@@ -6,10 +6,12 @@ The original CSV repository remains private. This public repository contains the
 
 ## Automatic updates
 
-The Publish Sound Forest workflow checks the private `keyang1221/sound-forest-data` repository every five minutes, skips unchanged revisions, builds the public data and publishes GitHub Pages. GitHub can delay scheduled runs. A read-only repository-scoped token is required in the `SOUND_FOREST_DATA_READ_TOKEN` Actions secret; until configured, the initial snapshot remains available and scheduled data updates are skipped. Original CSV commits are never modified.
+The Publish Sound Forest workflow checks the private `keyang1221/sound-forest-data` repository daily at 10:00 in Europe/Stockholm (including daylight-saving changes), skips unchanged interaction payloads, builds the public data and publishes GitHub Pages. GitHub can delay scheduled runs. A read-only repository-scoped token is required in the `SOUND_FOREST_DATA_READ_TOKEN` Actions secret; until configured, the initial snapshot remains available and scheduled data updates are skipped. Original CSV commits are never modified.
 
 Source code changes on main also publish automatically. The private data checkout is never included in the Pages artifact. Only the generated `_site` directory is published. Derived snapshot commits keep a reproducible public copy and contain no raw CSV data.
 
 ## Local static preview
 
 Serve this directory with a static HTTP server. No GitHub credentials are used in the browser.
+
+Replay opens on the latest available date after a fresh visit or refresh. Open pages keep their selected date and playback position. Scheduled checks compare the actual interaction data, so an unchanged dataset does not trigger another publication.

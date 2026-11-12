@@ -64,7 +64,7 @@ def build(args):
         (output / f'day-{date}.json').write_text(text)
         digest.update(text.encode())
         entries.append({'date':date,'url':f'./day-{date}.json','count':len(events)})
-    manifest = {'version':1,'sourceRevision':args.revision or digest.hexdigest(),'days':entries}
+    manifest = {'version':1,'sourceRevision':args.revision or digest.hexdigest(),'dataRevision':digest.hexdigest(),'days':entries}
     (output / 'data-manifest.json').write_text(json.dumps(manifest, separators=(',', ':'))+'\n')
     (output / '.nojekyll').write_text('')
     print(f'Published bundle: {len(entries)} dates, {sum(e["count"] for e in entries)} triggers. Raw CSVs are excluded.')

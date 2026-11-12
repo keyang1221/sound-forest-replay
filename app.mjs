@@ -232,7 +232,7 @@ async function boot(){
    manifest=publicSources(await response.json());
   }
   for(const entry of manifest)sources.set(entry.date,entry);
-  if(sources.size){updateDateSelect(sources.has('2026-11-03')?'2026-11-03':undefined);await selectDay($('day-select').value);}
+  if(sources.size){updateDateSelect([...sources.keys()].sort().at(-1));await selectDay($('day-select').value);}
  }catch(error){notify(error.message||'Interaction data is not available. Please try refreshing the page.');}
 }
 const bootReady=boot();
