@@ -81,7 +81,7 @@
         <p>Curve colors use a shared quartile scale from green through yellow to red, calculated from nonzero two-minute intervals across all valid dates. This scale stays consistent when dates change. The date picker uses a separate quartile scale based on full-day totals. Counts represent logged triggers.</p>
       </div>
       <div id="monthly-method" hidden>
-        <p>The monthly heatmap groups dates by month, with six rows from Tuesday to Sunday. Mondays are omitted. Each square represents the full-day total across all five strings, from 00:00 to 24:00, including repeated triggers within the same second. Gaps separate the months; narrow screens support horizontal scrolling. Hover over a square to see its date and daily total.</p>
+        <p>The monthly heatmap groups dates by month, with six rows from Tuesday to Sunday. Mondays are omitted. Each square represents the full-day total across all five strings, from 00:00 to 24:00, including repeated triggers within the same second. Month gaps shrink as the screen narrows, down to the same spacing as adjacent days. Horizontal scrolling appears only when this compact layout no longer fits. Hover over a square to see its date and daily total.</p>
         <p>Color and square area share a quartile mapping based on nonzero full-day totals from all recorded dates except Mondays. Q1, the median, Q3 and the maximum define the green, yellow and red scale, shared across all years. Tiny solid squares indicate zero triggers, hollow squares indicate missing logs, and loading failures are marked separately. Totals reflect available logs only.</p>
       </div>
     </section>

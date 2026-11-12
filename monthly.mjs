@@ -20,13 +20,15 @@ export function buildMonthlyDataset(rawDays,dates=rawDays.map(d=>d.date),failure
 }
 
 export function monthlyLayout(availableWidth,year){
- const labelWidth=74,right=12,gap=Math.max(12,Math.min(20,availableWidth*.014));
+ const labelWidth=74,right=12,maxGap=20;
  const columns=year.months.reduce((n,m)=>n+m.weeks,0);
- const pitch=Math.max(8,Math.min(16,(availableWidth-labelWidth-right-gap*11)/columns));
+ const pitch=Math.max(8,Math.min(16,(availableWidth-labelWidth-right-maxGap*11)/columns));
+ // Zero extra gutter makes adjacent months use the same center spacing as days.
+ const gap=Math.max(0,Math.min(maxGap,(availableWidth-labelWidth-right-columns*pitch)/11));
  const contentWidth=labelWidth+right+columns*pitch+gap*11,offset=Math.max(0,(availableWidth-contentWidth)/2),rowPitch=Math.max(14,pitch);
  let x=offset+labelWidth;
  const months=year.months.map(month=>{const width=month.weeks*pitch,result={...month,x,width};x+=width+gap;return result;});
- return {months,pitch,rowPitch,gap,offset,contentWidth,width:Math.max(availableWidth,contentWidth),height:42+5*rowPitch+28,overflow:contentWidth>availableWidth};
+ return {months,pitch,rowPitch,gap,offset,contentWidth,width:Math.max(availableWidth,contentWidth),height:42+5*rowPitch+28,overflow:contentWidth>availableWidth+1e-6};
 }
 
 export function monthlyScrollLeft({previousLeft,previousMax,maxScroll,targetX,viewportWidth,preserveSelection}){
