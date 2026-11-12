@@ -1,0 +1,106 @@
+name: Publish Sound Forest
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+concurrency:
+  group: sound-forest-pages
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      changed: ${{ steps.prepare.outputs.changed }}
+    env:
+      DATA_READ_TOKEN: ${{ secrets.SOUND_FOREST_DATA_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check private data connection
+        id: connection
+        shell: bash
+        run: |
+          if [ -n "$DATA_READ_TOKEN" ]; then
+            echo 'connected=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'connected=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::Initial public snapshot is available. Add SOUND_FOREST_DATA_READ_TOKEN for automatic data refresh.'
+          fi
+      - name: Read private CSV repository
+        if: steps.connection.outputs.connected == 'true'
+        uses: actions/checkout@v6
+        with:
+          repository: keyang1221/sound-forest-data
+          ref: main
+          token: ${{ secrets.SOUND_FOREST_DATA_READ_TOKEN }}
+          path: _private-data
+          persist-credentials: false
+      - name: Detect a data update
+        id: prepare
+        env:
+          CONNECTED: ${{ steps.connection.outputs.connected }}
+          EVENT_NAME: ${{ github.event_name }}
+          SITE_MANIFEST: https://keyang1221.github.io/sound-forest-replay/data-manifest.json
+        run: |
+          python3 - <<'PY'
+          import json,os,subprocess,urllib.request
+          connected=os.environ['CONNECTED']=='true'
+          changed=os.environ['EVENT_NAME']!='schedule'
+          revision=''
+          if connected:
+              revision=subprocess.check_output(['git','-C','_private-data','rev-parse','HEAD'],text=True).strip()
+              try:
+                  with urllib.request.urlopen(os.environ['SITE_MANIFEST'],timeout=15) as response:
+                      published=json.load(response).get('sourceRevision')
+              except Exception:
+                  published=None
+              changed=changed or revision!=published
+          with open(os.environ['GITHUB_OUTPUT'],'a') as output:
+              output.write(f'changed={str(changed).lower()}\nrevision={revision}\n')
+          PY
+      - name: Build public interaction data
+        if: steps.prepare.outputs.changed == 'true' && steps.connection.outputs.connected == 'true'
+        run: python3 export-public.py --data-dir _private-data/data --assets . --output _site --revision '${{ steps.prepare.outputs.revision }}'
+      - name: Build initial public snapshot
+        if: steps.prepare.outputs.changed == 'true' && steps.connection.outputs.connected != 'true'
+        run: python3 export-public.py --snapshot . --assets . --output _site
+      - name: Preserve the processed snapshot
+        if: steps.prepare.outputs.changed == 'true' && steps.connection.outputs.connected == 'true'
+        run: |
+          python3 - <<'PY'
+          import pathlib,shutil
+          root=pathlib.Path('.')
+          for old in root.glob('day-????-??-??.json'): old.unlink()
+          for source in pathlib.Path('_site').glob('*.json'): shutil.copyfile(source,root/source.name)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- data-manifest.json 'day-*.json'
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: refresh published interaction snapshot [skip ci]'
+            git push origin HEAD:main
+          fi
+      - uses: actions/upload-pages-artifact@v4
+        if: steps.prepare.outputs.changed == 'true'
+        with:
+          path: _site
+  deploy:
+    if: needs.build.outputs.changed == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Publish
+        id: deployment
+        uses: actions/deploy-pages@v4
