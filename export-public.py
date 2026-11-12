@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build a static site containing only the interaction fields needed by the UI."""
-import argparse, csv, datetime, hashlib, json, math, os, pathlib, re, shutil
+import argparse, csv, datetime, hashlib, json, math, os, pathlib, re
 FIELDS = ['local_time', 'elapsed_s', 'string_id', 'amplitude_linear', 'slope_raw', 'pitch_level']
 NAME = re.compile(r'^soundforest_onsets_(\d{6})\.csv$')
 
@@ -56,9 +56,17 @@ def build(args):
     if not days: raise ValueError('No valid daily data found; refusing to publish an empty dataset')
     output.mkdir(parents=True, exist_ok=True)
     for old in output.glob('day-????-??-??.json'): old.unlink()
-    for asset in assets.iterdir():
-        if asset.is_file() and not asset.is_symlink() and asset.suffix in ('.html', '.css', '.mjs', '.js', '.svg'):
-            shutil.copyfile(asset, output / asset.name)
+    runtime = {asset.name: asset.read_bytes() for asset in sorted(assets.iterdir())
+               if asset.is_file() and not asset.is_symlink() and asset.suffix in ('.html', '.css', '.mjs', '.js', '.svg')}
+    asset_digest = hashlib.sha256()
+    for name, content in runtime.items():
+        asset_digest.update(name.encode() + b'\0' + content)
+    asset_version = asset_digest.hexdigest()[:16]
+    references = re.compile(r'''(["'])((?:\./)?([A-Za-z0-9_-]+\.(?:mjs|js|css|svg)))(?:\?v=[a-f0-9]+)?\1''')
+    for name, content in runtime.items():
+        text = references.sub(lambda match: f'{match[1]}{match[2]}?v={asset_version}{match[1]}'
+                              if match[3] in runtime else match[0], content.decode('utf-8'))
+        (output / name).write_text(text)
     digest = hashlib.sha256()
     entries = []
     for date, events in sorted(days.items()):
