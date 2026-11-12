@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <title>Sound Forest · Spatial replay</title>
+  <meta name="description" content="A spatial replay of five interactive strings.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="spatial.css">
+  <link rel="stylesheet" href="room.css">
+  <link rel="stylesheet" href="visualization.css">
+  <link rel="stylesheet" href="controls.css">
+  <link rel="stylesheet" href="page-turn.css">
+</head>
+<body>
+  <nav class="dot-navigation" aria-label="Page navigation">
+    <a href="#replay" data-page="replay" aria-label="Spatial replay" aria-current="page"><i aria-hidden="true"></i><span>Spatial replay</span></a>
+    <a href="#visualization" data-page="visualization" aria-label="Data visualization"><i aria-hidden="true"></i><span>Data visualization</span></a>
+  </nav>
+  <div class="scroll-experience" id="scroll-experience">
+  <main class="replay-panel" aria-label="Sound Forest Spatial replay">
+    <div class="ambient-particles" id="ambient-particles" aria-hidden="true"></div>
+    <header class="replay-heading">
+      <div class="session-clock"><time id="session-date">No date selected</time><div class="clock" id="current-time" aria-label="Current log time">10:00<span>:00</span></div></div>
+      <span id="playback-status" class="sr-only">Waiting for data</span>
+    </header>
+    <div class="stage" id="stage">
+      <div class="stage-grain" aria-hidden="true"></div>
+      <div class="strings" id="strings" aria-label="Five strings transitioning from overhead to front view as the page scrolls"><svg id="space-scene" role="img" aria-label="Sound Forest spatial replay, S5 to S1 from left to right"><defs><linearGradient id="platform-gradient" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f28c6d"/><stop offset="48%" stop-color="#c7b5e3"/><stop offset="100%" stop-color="#d2e9a6"/></linearGradient></defs></svg></div>
+      <div class="empty-overlay" id="empty-state"><h2>No replay data</h2><p>Connect a log source to start replaying.</p></div>
+      <div class="window-empty" id="window-empty" hidden>No triggers in this time range</div>
+      <div class="sr-only"><span id="window-label">10:00 — 17:00</span><span id="source-label">Local log replay</span><span id="frame-label">Second-level timestamps</span></div>
+    </div>
+    <section class="timeline-panel" aria-label="Daily activity timeline">
+      <div class="timeline-track">
+        <label for="timeline" class="sr-only">Daily activity timeline</label>
+        <div class="timeline-wrap" id="timeline-wrap"><canvas id="timeline-colors" aria-hidden="true"></canvas><div class="playhead" id="playhead" aria-hidden="true"><span></span></div><input id="timeline" type="range" min="36000" max="61200" step="1" value="36000" disabled aria-label="Drag to seek the replay" aria-valuetext="10:00:00"><output id="timeline-tooltip" hidden></output></div>
+        <div class="timeline-ticks" id="timeline-ticks" aria-hidden="true"></div>
+      </div>
+      <div class="play-controls timeline-actions" role="group" aria-label="Replay controls"><button id="play" class="play-button" type="button" disabled aria-label="Play" title="Play / Pause (Space)"><span id="play-icon" aria-hidden="true">▶</span><span id="play-label" class="sr-only">Play</span></button><button id="speed-cycle" class="speed-cycle" type="button" disabled aria-label="Change playback speed, currently 1×" title="Click to change playback speed">×1</button></div>
+    </section>
+    <section class="player-dock" id="player-dock" aria-label="Replay date selection">
+      <button class="scroll-cue" id="show-controls" type="button" aria-label="Scroll down to the front view and replay controls"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v15m-5-5 5 5 5-5"/></svg></button>
+      <div class="date-controls" id="date-picker-controls" inert>
+        <span class="date-morph-label" aria-hidden="true">Change Date</span>
+        <label for="day-select" class="sr-only">Change Date</label><select id="day-select" aria-label="Change Date" disabled><option>Waiting for logs</option></select>
+        <span id="date-note" class="sr-only">Waiting for logs</span>
+      </div>
+      <span class="sr-only"><strong id="played-count">0</strong> / <span id="total-count">0</span> triggers</span>
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+    </section>
+  </main>
+  </div>
+  <main class="visualization-page" id="visualization-page" hidden>
+    <header class="visualization-heading"><h1>Data visualization</h1><div class="viz-date" id="analysis-date-heading"></div></header>
+    <div class="viz-controls">
+      <div class="viz-switch" role="group" aria-label="View period"><button type="button" data-analysis-period="day" aria-pressed="false">Day</button><button type="button" data-analysis-period="week" aria-pressed="true" class="selected">Week</button><button type="button" data-analysis-period="month" aria-pressed="false">Month</button></div>
+      <label class="viz-date-control" id="analysis-week-control"><span class="sr-only">Analysis week</span><select id="analysis-week" aria-label="Analysis week" disabled></select></label>
+      <div class="viz-date-control" id="analysis-date-control" hidden><select id="analysis-date" aria-label="Analysis date" tabindex="-1" aria-hidden="true" hidden disabled></select><button class="date-picker-trigger" id="analysis-date-trigger" type="button" aria-haspopup="dialog" aria-controls="analysis-date-popover" aria-expanded="false" aria-label="Choose a date" disabled><span id="analysis-date-label">Choose a date</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3"/></svg></button></div>
+    </div>
+    <section class="heat-date-picker" id="analysis-date-popover" popover="auto" role="dialog" aria-label="Choose a date">
+      <div class="date-picker-navigation"><button type="button" id="date-picker-prev" aria-label="Previous month">‹</button><h3 id="date-picker-month-title" aria-live="polite"></h3><button type="button" id="date-picker-next" aria-label="Next month">›</button></div>
+      <div class="date-picker-months" id="date-picker-months"></div>
+    </section>
+    <p id="analysis-status" class="viz-status" role="status">Loading logs…</p>
+    <figure class="activity-figure">
+      <div class="activity-chart-scroll"><svg id="analysis-chart" role="img" tabindex="0" aria-label="Daily trigger activity for five strings" aria-describedby="analysis-keyboard"></svg></div>
+      <input id="analysis-scroll" class="viz-horizontal-slide" type="range" min="0" max="0" step="1" value="0" aria-label="Scroll the heatmap horizontally" hidden>
+      <span class="sr-only" id="analysis-keyboard">Use Left and Right to select a time interval, and Up and Down to move through each day’s five strings. The tooltip shows the date, string, time range and exact trigger count. Press Escape to hide it.</span>
+      <output class="viz-inspect" id="analysis-inspect" role="tooltip" aria-live="polite" hidden></output>
+    </figure>
+    <section class="viz-method" aria-labelledby="viz-method-title">
+      <h2 id="viz-method-title">Visualization method</h2>
+      <div id="weekly-method">
+      <p>The weekly heatmap shows string activity from 08:00 to 20:00. The five rows represent Strings 1–5, from top to bottom. Each square sums triggers over <span id="analysis-grain">2–20</span> minutes; the final interval includes only its remaining duration. Intervals adapt to the screen width between 2 and 20 minutes. The chart is centered when two-minute intervals fit, and scrolls horizontally when twenty-minute intervals do not. Hover over a square to see its date, string, time range and trigger count.</p>
+      <p>Square color and area share a quartile mapping. Nonzero intervals from all valid dates between 08:00 and 20:00 are pooled, with one trigger, Q1, the median, Q3 and the maximum as anchors. Squares grow smoothly as colors shift from green through yellow to red. The same scale is used across weeks at the same interval length, and recalculated when that interval changes. Tiny faint squares indicate zero triggers; missing logs are marked separately.</p>
+      </div>
+      <div id="daily-method" hidden>
+        <p>The daily view shows activity from 08:00 to 20:00 in two-minute intervals. The five rows represent Strings 1–5, from top to bottom, on a shared vertical scale. Hover over a curve to see its time range and trigger count.</p>
+        <p>Curve colors use a shared quartile scale from green through yellow to red, calculated from nonzero two-minute intervals across all valid dates. This scale stays consistent when dates change. The date picker uses a separate quartile scale based on full-day totals. Counts represent logged triggers.</p>
+      </div>
+      <div id="monthly-method" hidden>
+        <p>The monthly heatmap groups dates by month, with six rows from Tuesday to Sunday. Mondays are omitted. Each square represents the full-day total across all five strings, from 00:00 to 24:00, including repeated triggers within the same second. Gaps separate the months; narrow screens support horizontal scrolling. Hover over a square to see its date and daily total.</p>
+        <p>Color and square area share a quartile mapping based on nonzero full-day totals from all recorded dates except Mondays. Q1, the median, Q3 and the maximum define the green, yellow and red scale, shared across all years. Tiny solid squares indicate zero triggers, hollow squares indicate missing logs, and loading failures are marked separately. Totals reflect available logs only.</p>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+.intro { padding-bottom: 27px; }
+.stage { height: clamp(430px, calc(35vw + 280px), 660px); padding: 0; }
+.stage-topline { position: absolute; top: 19px; left: 0; right: 0; justify-content: center; pointer-events: none; z-index: 1; }
+.stage-topline::after { display: none; }
+#strings.strings { position: absolute; inset: 60px 12px 8px; display: block; max-width: none; height: auto; margin: 0; }
+#space-scene { display: block; width: 100%; height: 100%; overflow: visible; }
+.floor-plane { fill: #49634612; stroke: #7b9d6830; stroke-width: .7; }
+.floor-grid { fill: none; stroke: #83a66d18; stroke-width: .65; }
+.platform-side { fill: #101c16; stroke: #7b95634d; stroke-width: .65; }
+.platform { fill: #a4bf7526; stroke: #bdd39580; stroke-width: .65; opacity: calc(.45 + var(--glow)*.35); }
+.platform-edge { fill: none; stroke: var(--rope-color); stroke-width: .6; opacity: calc(.12 + var(--glow)*.25); }
+.platform-shadow { fill: #020b074d; }
+.platform-light { opacity: calc(.015 + var(--glow)*.075); }
+.string-lane .string-label { display: block; fill: #b4c6ae; font-size: 10px; letter-spacing: 1.4px; }
+.string-lane .string-count { fill: #8ba286; font: 11px "SFMono-Regular", Consolas, monospace; }
+.outline-label { display: none; }
+.stage-header { padding: 15px 24px; }
+.stage-mode { font-size: 10px; }
+.transport { padding: 18px 24px; }
+.transport-main { align-items: center; flex-wrap: wrap; gap: 12px; margin: 13px 0 0; }
+.transport .play-controls { width: auto; gap: 8px; }
+.play-button { min-width: 36px; width: 36px; height: 36px; border-radius: 50%; padding: 0; }
+.play-button > span:first-child { font-size: 12px; margin-left: 1px; }
+.reset-button { width: 28px; height: 34px; font-size: 22px; }
+.transport .date-controls { display: block; min-width: 0; }
+.transport .date-controls select { width: 150px; min-height: 34px; font-size: 11px; padding: 8px 23px 8px 9px; border-color: #758e7b2e; background: transparent; }
+.transport .window-switch { gap: 2px; }
+.transport .window-switch button { padding: 5px 7px; }
+.transport .speed-controls { width: auto; max-width: none; margin-left: auto; flex-wrap: nowrap; gap: 8px; }
+.transport .speed-controls > input[type=range] { width: 70px; min-width: 0; flex: initial; }
+.transport .speed-presets { width: auto; gap: 1px; }
+.speed-input-wrap { height: 32px; }
+.timeline-wrap { height: 4px; border-radius: 2px; }
+#timeline-colors { height: 4px; border-radius: 2px; opacity: 1; }
+#timeline { inset: auto; left: 0; top: -14px; height: 32px; width: 100%; }
+.timeline-wrap:focus-within { outline: 1px solid #c5e2a455; outline-offset: 4px; }
+.playhead { top: -3px; bottom: -3px; width: 1px; box-shadow: none; }
+.playhead > span { width: 9px; height: 9px; top: 1px; left: -4px; transform: none; border-radius: 50%; }
+.timeline-ticks { margin-top: 10px; }
+#timeline-tooltip { bottom: 20px; }
+.page-footer { padding: 17px 0 25px; justify-content: center; }
+@media(max-width: 900px) {
+  .transport .speed-presets { display: none; }
+}
+@media(max-width: 600px) {
+  .stage { height: 430px; }
+  #strings.strings { inset: 46px 7px 8px; }
+  .stage-topline { top: 17px; }
+  .clock { font-size: 25px; }
+  .stage-header { padding: 14px; }
+  .string-lane .string-label { font-size: 11px; letter-spacing: .6px; }
+  .string-lane .string-count { font-size: 10px; }
+  .transport { padding: 17px 14px; }
+  .transport-main { gap: 14px 10px; margin-top: 13px; }
+  .transport .play-controls { order: 1; }
+  .transport .date-controls { order: 2; margin-left: auto; }
+  .transport .date-controls select { width: 160px; font-size: 12px; }
+  .transport .window-switch { order: 3; }
+  .transport .speed-controls { order: 4; margin-left: auto; }
+  .transport .speed-controls > input[type=range] { width: 58px; }
+  .page-footer { align-items: center; }
+}

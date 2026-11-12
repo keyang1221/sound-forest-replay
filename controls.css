@@ -1,0 +1,26 @@
+/* Quiet glass controls, shared by replay and visualization. */
+:root { --control-glass:linear-gradient(135deg,#66717b38,#343c424d); --control-edge:#e6edf22b; --control-text:#f2f3f1; --control-muted:#b4bac0; --control-shadow:inset 0 1px 0 #ffffff0c,0 6px 20px #0000001f; }
+button,select { font-family:"Helvetica Neue","SF Pro Display",Arial,sans-serif; }
+.viz-date-control,.viz-switch { background:var(--control-glass); border:1px solid var(--control-edge); box-shadow:var(--control-shadow); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+.viz-switch { padding:0; gap:0; }
+.viz-switch button { position:relative; height:calc(var(--viz-control-height) + 8px); color:var(--control-muted); border:1px solid transparent; transition:background .18s,color .18s,border-color .18s; }
+.viz-switch button.selected { background:#c9d1d51c; color:var(--control-text); border-color:transparent; box-shadow:inset 0 1px 0 #ffffff0c; }
+.viz-switch button.selected::before { content:""; position:absolute; inset:-1px; padding:1px; border-radius:inherit; background:linear-gradient(135deg,#f1f6fa9c 0%,#d5e1eb40 38%,#b6c5d50a 68%,#eef4f74d 100%); -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); mask-composite:exclude; pointer-events:none; }
+.viz-switch button:hover:not(.selected) { background:#ffffff0a; color:var(--control-text); }
+.viz-date-control select,.date-picker-trigger { color:var(--control-text); background:transparent; }
+.viz-date-control select option { color:#161b1e; background:#fff; }
+.viz-date-control:hover { border-color:#e6edf24a; }
+.timeline-panel .play-button { background:linear-gradient(145deg,#fff,#dce1e3); color:#20282d; border:1px solid #ffffff70; box-shadow:0 0 0 3px #ffffff08,0 6px 20px #0005; }
+.timeline-panel .play-button:hover:not(:disabled) { background:#fff; }
+.timeline-panel .speed-cycle { background:var(--control-glass); border:1px solid var(--control-edge); color:var(--control-text); box-shadow:var(--control-shadow); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+.timeline-panel .speed-cycle:hover:not(:disabled) { background:#54616b66; border-color:#e6edf24a; }
+.player-dock::before { background:var(--control-glass); border:1px solid var(--control-edge); box-shadow:var(--control-shadow); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+.player-dock:hover::before { background:linear-gradient(135deg,#74818b48,#3b464e66); }
+.player-dock .date-morph-label,.scroll-cue { color:var(--control-text); }
+.dot-navigation span { background:#343e47b8; color:var(--control-text); border:1px solid var(--control-edge); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); box-shadow:var(--control-shadow); }
+.viz-date-control:focus-within,.player-dock .date-controls:focus-within { outline-color:#e6edf2; }
+.viz-switch button:focus-visible,.timeline-actions button:focus-visible,.scroll-cue:focus-visible { outline-color:#e6edf2; }
+.viz-horizontal-slide { accent-color:#dce1e3; }
+.date-picker-navigation button { background:linear-gradient(145deg,#fafbf9,#e6e8e5); border:1px solid #24201a16; box-shadow:inset 0 1px 0 #fff; }
+.date-picker-navigation button:hover { background:#e3e6e2; border-color:#24201a30; }
+@media(prefers-reduced-motion:reduce) { .viz-switch button { transition:none; } }

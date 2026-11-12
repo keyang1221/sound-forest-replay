@@ -1,0 +1,15 @@
+/* Slide the entire viewport upwards when moving to the next page. */
+html { overscroll-behavior-y:none; }
+::view-transition-group(root) { animation-duration:650ms; }
+::view-transition-old(root),::view-transition-new(root) { mix-blend-mode:normal; animation-duration:650ms; animation-timing-function:cubic-bezier(.22,.75,.2,1); animation-fill-mode:both; }
+:root[data-page-direction=forward]::view-transition-old(root) { animation-name:page-exit-up; }
+:root[data-page-direction=forward]::view-transition-new(root) { animation-name:page-enter-up; }
+:root[data-page-direction=backward]::view-transition-old(root) { animation-name:page-exit-down; }
+:root[data-page-direction=backward]::view-transition-new(root) { animation-name:page-enter-down; }
+@keyframes page-exit-up { to { transform:translateY(-100vh); } }
+@keyframes page-enter-up { from { transform:translateY(100vh); } }
+@keyframes page-exit-down { to { transform:translateY(100vh); } }
+@keyframes page-enter-down { from { transform:translateY(-100vh); } }
+@media(prefers-reduced-motion:reduce) {
+ ::view-transition-group(root),::view-transition-old(root),::view-transition-new(root) { animation:none!important; }
+}
