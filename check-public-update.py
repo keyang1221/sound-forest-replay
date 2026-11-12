@@ -1,6 +1,21 @@
 #!/usr/bin/env python3
 """Skip data-only publication unless the actual interaction payload changed."""
-import argparse, json, pathlib, re, urllib.error, urllib.request
+import argparse, json, pathlib, re, time, urllib.error, urllib.request
+
+def read_published(url):
+    for attempt in range(3):
+        try:
+            request = urllib.request.Request(url, headers={'Cache-Control':'no-cache'})
+            with urllib.request.urlopen(request, timeout=20) as response:
+                published = json.load(response)
+            if published.get('version') != 1: raise ValueError('Invalid published manifest')
+            return published
+        except urllib.error.HTTPError as error:
+            if error.code == 404: return {}
+            if error.code not in (408, 429, 500, 502, 503, 504) or attempt == 2: raise
+        except (urllib.error.URLError, TimeoutError):
+            if attempt == 2: raise
+        time.sleep(2 ** (attempt + 1))
 
 def check(args):
     candidate = pathlib.Path(args.candidate)
@@ -13,14 +28,7 @@ def check(args):
         if args.event == 'push':
             changed = True  # Code changes still publish even when data is unchanged.
         else:
-            try:
-                request = urllib.request.Request(args.published_url, headers={'Cache-Control':'no-cache'})
-                with urllib.request.urlopen(request, timeout=20) as response:
-                    published = json.load(response)
-                if published.get('version') != 1: raise ValueError('Invalid published manifest')
-            except urllib.error.HTTPError as error:
-                if error.code != 404: raise
-                published = {}
+            published = read_published(args.published_url)
             changed = revision != published.get('dataRevision')
     with open(args.github_output, 'a') as output:
         output.write(f'changed={str(changed).lower()}\n')
